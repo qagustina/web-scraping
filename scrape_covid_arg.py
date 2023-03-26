@@ -1,47 +1,39 @@
 import pandas as pd
 from pandas.io.html import read_html
-import re
 
 
 def get_url():
-    return 'https://en.wikipedia.org/wiki/Template:COVID-19_pandemic_data/Argentina_medical_cases'
+    return 'https://en.wikipedia.org/wiki/Template:COVID-19_pandemic_data/Argentina_medical_cases_in_2020'
 
 
-def extract_cases_table():
-    pd.set_option('display.max_columns', None, 'display.max_rows', None, 'display.max_colwidth', 15,
+table = read_html(get_url(), index_col=0, attrs={"class": "wikitable"}, flavor='html5lib')
+pd.set_option('display.max_columns', None, 'display.max_rows', None, 'display.max_colwidth', 15,
                   'display.width', None)
-    cases_table = read_html(get_url(), index_col=0, attrs={"class": "wikitable"})
-    cases_table[0] = cases_table[0].iloc[:-4, :]
-    cases_table[0] = cases_table[0].drop_duplicates()
-    cases_table[0] = cases_table[0].replace(r'—', 0, regex=True)
-    cases_table[0] = cases_table[0].replace(r'N/A', 0, regex=True)
-    cases_table[0] = cases_table[0].replace({"\[[0-9a-z]*\]": ""}, regex=True)
-    cases_table[0] = cases_table[0].replace({"\((\d+)\)": ""}, regex=True)
-    print(cases_table)
-    print("\n")
+table_clean = table[0].iloc[:-4, :] 
+table_clean = table_clean.drop_duplicates()\
+              .replace(r'—', 0, regex=True)\
+              .replace(r'N/A', 0, regex=True)
+
+
+def extract_cases_table(table_clean):
+    cases_table = table_clean.replace({"\[[0-9a-z]*\]": ""}, regex=True)\
+                  .replace({"\((\d+)\)": ""}, regex=True)
     return cases_table
 
 
-def extract_deaths_table():
-    pd.set_option('display.max_columns', None, 'display.max_rows', None, 'display.max_colwidth', 15,
-                  'display.width', None)
-    deaths_table = read_html(get_url(), index_col=0, attrs={"class": "wikitable"})
-    deaths_table[0] = deaths_table[0].iloc[:-4, :]
-    deaths_table[0] = deaths_table[0].drop_duplicates()
-    deaths_table[0] = deaths_table[0].replace(r'—', 0, regex=True)
-    deaths_table[0] = deaths_table[0].replace(r'N/A', 0, regex=True)
-    deaths_table[0] = deaths_table[0].replace({"^(\d*)": ""}, regex=True)
-    deaths_table[0] = deaths_table[0].replace(r'^\s*$', 0, regex=True)
-    deaths_table[0] = deaths_table[0].replace({"\[[0-9a-z]*\]": ""}, regex=True)
-    print(deaths_table)
+def extract_deaths_table(table_clean):
+    deaths_table = table_clean.replace({"^(\d*)": ""}, regex=True)\
+                  .replace(r'^\s*$', 0, regex=True)\
+                  .replace({"\[[0-9a-z]*\]": ""}, regex=True)
     return deaths_table
 
 
 def main():
-    cases_table = extract_cases_table()
-    deaths_table = extract_deaths_table()
+    cases_table = extract_cases_table(table_clean)
+    deaths_table = extract_deaths_table(table_clean)
+    #print(cases_table)
+    #print(deaths_table)
 
-
+    
 if __name__ == '__main__':
-    main()
-
+     main()
