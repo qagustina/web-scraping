@@ -11,20 +11,19 @@ pd.set_option('display.max_columns', None, 'display.max_rows', None, 'display.ma
                   'display.width', None)
 table_clean = table[0].iloc[:-4, :] 
 table_clean = table_clean.drop_duplicates()\
+              .replace({"\[[0-9a-z]*\]": ""}, regex=True)\
+              .replace(r'^\s*$', 0, regex=True)\
               .replace(r'—', 0, regex=True)\
               .replace(r'N/A', 0, regex=True)
 
 
 def extract_cases_table(table_clean):
-    cases_table = table_clean.replace({"\[[0-9a-z]*\]": ""}, regex=True)\
-                  .replace({"\((\d+)\)": ""}, regex=True)
+    cases_table = table_clean.replace({"\((\d+)\)": ""}, regex=True)
     return cases_table
 
 
 def extract_deaths_table(table_clean):
-    deaths_table = table_clean.replace({"^(\d*)": ""}, regex=True)\
-                  .replace(r'^\s*$', 0, regex=True)\
-                  .replace({"\[[0-9a-z]*\]": ""}, regex=True)
+    deaths_table = table_clean.replace({"^(\d*)": ""}, regex=True) 
     return deaths_table
 
 
